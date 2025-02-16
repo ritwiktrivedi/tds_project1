@@ -541,7 +541,7 @@ def task_a3(filename, targetfile, weekday):
             except:
                 pass
     with open(targetfile, "w") as f:
-        f.write(count)
+        f.write(str(count))
 
 # Task A4: Sort a JSON contacts file and save the sorted version to a target file.
 def task_a4(filename, targetfile):
@@ -549,7 +549,7 @@ def task_a4(filename, targetfile):
         contacts = json.load(f)
     sorted_contacts = sorted(contacts, key=lambda x: (x['last_name'], x['first_name']))
     with open(targetfile, "w") as f:
-        json.dump(str(sorted_contacts), f)
+        json.dump(sorted_contacts, f, ensure_ascii=False)
 
 # Task A5: List the most recent 10 log files in a directory and save the list to a target file.
 def task_a5(log_dir_path, output_file_path, num_files):
@@ -580,7 +580,7 @@ def task_a6(doc_dir_path, output_file_path):
         print(f"Error reading {md_file}: {e}")
     try:
         with output_file.open('w') as f_out:
-            json.dump(index_data, f_out)
+            json.dump(index_data, f_out, indent=4)
     except Exception as e:
         print(f"Error writing {output_file}: {e}")
 
@@ -616,20 +616,37 @@ def task_a6(doc_dir_path, output_file_path):
 
 # Task A7: Extract the sender's email address from a text file and save it to an output file.
 def task_a7(filename='/data/email.txt', targetfile='/data/email-sender.txt'):
+     # Read the content of the email
     with open(filename, 'r') as file:
         email_content = file.readlines()
 
     sender_email = ""
     for line in email_content:
-        # Look for a line starting with "From:" (case-insensitive)
-        if line.strip().lower().startswith("from:"):
-            # Remove quotes if any, and angle brackets
-            cleaned = line.replace('"', '').replace('<','').replace('>','').strip()
-            sender_email = cleaned.split()[-1]
+        if "From" == line[:4]:
+            sender_email = (line.strip().split(" ")[-1]).replace("<", "").replace(">", "")
             break
 
+    # Get the extracted email address
+
+    # Write the email address to the output file
     with open(targetfile, 'w') as file:
-        file.write(str(sender_email))
+        file.write(sender_email)
+    
+    
+    # with open(filename, 'r') as file:
+    #     email_content = file.readlines()
+
+    # sender_email = ""
+    # for line in email_content:
+    #     # Look for a line starting with "From:" (case-insensitive)
+    #     if line.strip().lower().startswith("from:"):
+    #         # Remove quotes if any, and angle brackets
+    #         cleaned = line.replace('"', '').replace('<','').replace('>','').strip()
+    #         sender_email = cleaned.split()[-1]
+    #         break
+
+    # with open(targetfile, 'w') as file:
+    #     file.write(str(sender_email))
 
 import base64
 def image_to_base64(image_path):
@@ -688,7 +705,7 @@ def get_embedding(text):
     }
     response = requests.post("http://aiproxy.sanand.workers.dev/openai/v1/embeddings", headers=headers, data=json.dumps(data))
     response.raise_for_status()
-    return int(response.json()["data"][0]["embedding"])
+    return response.json()["data"][0]["embedding"]
 
 # Task A9: Find similar comments from a text file and save them to an output file.
 def task_a9(filename, output_filename):
